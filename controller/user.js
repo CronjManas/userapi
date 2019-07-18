@@ -33,6 +33,15 @@ exports.create = (req,res) => {
     //     Profession : req.body.profession || null 
 
     // });
+
+    let current = Moment().format('YYYY-MM-DD');
+    let CurrentDay = Moment(current);
+    let dYear = Moment(req.body.Dob).format('YYYY-MM-DD');
+    let dAge = Moment(dYear);
+    let Age = Moment.duration(CurrentDay.diff(dAge)).asYears();
+    let Age2 = parseInt(Age);
+
+    req.body.Age = Age2;
     req.body.UserId = id;
     const newUser = new User(req.body);
     newUser.save()
@@ -97,90 +106,35 @@ exports.delete = (req,res) => {
 //filter data
 
 exports.filter = (req,res,next) => {
-    let userData = [];
-    let usersFilter = [];
     
-        User.find().select('Dob UserId City Name Gender Profession')
-        .then(data => {
-            //Filter by age
-            if(req.query.age){
-                let current = Moment().format('YYYY-MM-DD');
-                let CurrentDay = Moment(current);
-                data.forEach(( d ) => {
-                    let dYear = Moment(d.Dob).format('YYYY-MM-DD');
-                    let dAge = Moment(dYear);
+    let Query = {};
+    if(req.query.age){
+        Query = Object.assign({Age:req.query.age},Query);
+    }
+    if(req.query.name){
+        Query = Object.assign({Name:req.query.name},Query);
+    }
+    if(req.query.prof){
+        Query = Object.assign({Proffession:req.query.prof},Query);
+    }
+    if(req.query.city){
+        Query = Object.assign({City:req.query.city},Query);
+    }
+    if(req.params.gen){
+        Query = Object.assign({Gender:req.query.gen},Query);
+    }
+    User.find(Query)
+    .then(data=>{
 
-                    let Age = Moment.duration(CurrentDay.diff(dAge)).asYears();
-                    let Age2 = parseInt(Age);
-                    if(Age2 <= parseInt(req.query.age) ){
-                        userData.push(d);
-                    }
-
-                });
-                usersFilter = [...userData];
-            }
-            userData = [];
-            //Filter by gender
-            if(req.query.gen){
-                usersFilter.forEach((user)=>{
-                    if( user.Gender === req.query.gen ){
-                        userData.push(user);
-                    }
-
-                });
-                usersFilter = [...userData];
-            }
-            userData = [];
-            if(req.query.city){
-                usersFilter.forEach((user)=>{
-                    if( user.City === req.query.city){
-                        userData.push(user);
-                    }
-                });
-                usersFilter = [...userData];
-            }
-            userData = [];
-            if(req.query.prof){
-                usersFilter.forEach((user)=>{
-                    if( user.Profession === req.query.prof){
-                        userData.push(user);
-                    }
-                });
-                usersFilter = [...userData];
-            }
-            userData = [];
-            if(req.query.name){
-                usersFilter.forEach((user)=>{
-                    if( user.Name === req.query.name){
-                        userData.push(user);
-                    }
-                });
-                usersFilter = [...userData];
-            }
-            userData = [];
-            
-            if(usersFilter.length === 0 ){
-                return res.status(500).send({
-                    message:"No filtering result found"
-                });
-            }else{
-                return res.send(usersFilter);
-            }
-            
-            
-            // if(usersAge.length!==0){
-            //     res.send(usersAge);
-            // }
-        }).catch(err=>{
-            
-            res.send({
-                error: err
+        if(data.length ===0){
+            return res.status(404).send({
+                message : 'Not found Any User'
             })
+        }
+        res.send(data);
+    }).catch(err=>{
+        res.status(500).send({
+            message : err
         });
-    
-    
-    
-
-   
-    
+    });   
 }

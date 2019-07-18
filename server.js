@@ -14,14 +14,8 @@ mongoose.connect(dbConfig.url,{useNewUrlParser:true})
 .then(()=>{console.log('connected to database')})
 .catch(err => {
     console.log('could not connect to database');
-    process.exit();
+    
 })
-
-app.get('/',(req,res) => {
-    res.json("hello");
-});
-
-
 require('./routes/user.js')(app);
 app.listen(3000,()=>{
     console.log("Server is listening to port 3000");
