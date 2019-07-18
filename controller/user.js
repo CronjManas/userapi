@@ -7,7 +7,7 @@ exports.displayAll = (req,res) => {
     .then(data=>{
         res.send(data)
     }).catch(err=>{
-        res.send({
+        res.status(500).send({
             error : err
         })
     })
@@ -21,17 +21,20 @@ exports.create = (req,res) => {
         })
     }
     const id = Newid();
+    
 
-    const newUser = new User({
-        UserId : id,
-        Name: req.body.name,
-        Dob: req.body.dob || null,
-        Gender : req.body.gender || null,
-        Address : req.body.address || null,
-        City : req.body.city || null,
-        Profession : req.body.profession || null 
+    // const newUser = new User({
+    //     UserId : id,
+    //     Name: req.body.name,
+    //     Dob: req.body.dob || null,
+    //     Gender : req.body.gender || null,
+    //     Address : req.body.address || null,
+    //     City : req.body.city || null,
+    //     Profession : req.body.profession || null 
 
-    });
+    // });
+    req.body.UserId = id;
+    const newUser = new User(req.body);
     newUser.save()
     .then(data=>{
         res.send(data);
@@ -61,16 +64,16 @@ exports.display = (req,res) => {
 }
 
 exports.edit = (req,res) => {
-    let user = {
-        Name : req.body.name,
-        Dob : req.body.dob,
-        Gender : req.body.gender,
-        Address : req.body.address,
-        City : req.body.city,
-        Profession : req.body.prof
-    }
+    // let user = {
+    //     Name : req.body.name,
+    //     Dob : req.body.dob,
+    //     Gender : req.body.gender,
+    //     Address : req.body.address,
+    //     City : req.body.city,
+    //     Profession : req.body.prof
+    // }
     let query = {UserId:req.params.id};
-    User.updateOne(query,user)
+    User.updateOne(query,req.body)
     .then(data => {
         res.send(data);
     }).catch(err => {
